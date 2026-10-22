@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PJL 1 - Block Instrument</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Inter:wght@600;800&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK Compat -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: #0b0c10;
+            color: #d1d5db;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* TOWER HOUSING UTAMA (SINGLE TOWER PJL 1) */
+        .tower-housing {
+            width: 330px;
+            background: #14151a;
+            border: 6px solid #1c1e26;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.95), inset 0 0 15px rgba(255,255,255,0.02);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* 1. SEKTOR ATAS (ENAMEL PUTIH GADING / IVORY) */
+        .top-enamel-section {
+            width: 100%;
+            background: #e6e1d6;
+            border-bottom: 5px solid #111215;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        /* 2. SEKTOR TENGAH & BAWAH (HITAM METALIK) */
+        .body-metal-section {
+            width: 100%;
+            background: #17181d;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* PLAT NAMA / LABEL LOGAM DENGAN BAUT */
+        .metal-tag {
+            background: #23252e;
+            color: #e2dfd5;
+            border: 2px solid #0d0e11;
+            border-radius: 3px;
+            padding: 3px 18px;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 8px;
+            position: relative;
+            text-align: center;
+        }
+
+        .metal-tag-light {
+            background: #d8d3c8;
+            color: #1a1a1a;
+            border: 2px solid #8c877b;
+        }
+
+        .metal-tag::before, .metal-tag::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 4px;
+            background: #111;
+            border-radius: 50%;
+            box-shadow: 0 1px 1px rgba(255,255,255,0.4);
+        }
+        .metal-tag::before { left: 6px; }
+        .metal-tag::after { right: 6px; }
+
+        /* JENDELA DIAL / DISPLAY */
+        .dial-window {
+            width: 290px;
+            height: 145px;
+            background: #f4f1ea;
+            border: 3px solid #1a1c22;
+            border-radius: 5px;
+            box-shadow: inset 0 0 12px rgba(0,0,0,0.3);
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .svg-dial {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* KOMUTATOR LINGKARAN HITAM */
+        .commutator-panel {
+            width: 290px;
+            height: 185px;
+            background: #0e0f13;
+            border: 3px solid #20222a;
+            border-radius: 50% / 38%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 0 18px rgba(0,0,0,0.9);
+        }
+
+        .click-sector {
+            cursor: pointer;
+            transition: opacity 0.15s, transform 0.1s;
+        }
+        .click-sector:hover {
+            opacity: 0.85;
+        }
+        .click-sector:active {
+            transform: scale(0.98);
+        }
+
+        /* RONGGA BAWAH & BELL TAPPER */
+        .bell-section {
+            width: 100%;
+            background: #0e0f13;
+            border-top: 5px solid #1b1d24;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bell-btn {
+            width: 290px;
+            padding: 14px;
+            background: linear-gradient(180deg, #2c303b 0%, #1a1c23 100%);
+            color: #f3f4f6;
+            border: 2px solid #484f60;
+            border-radius: 6px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #0a0b0d, 0 8px 12px rgba(0,0,0,0.4);
+            transition: all 0.05s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .bell-btn:hover {
+            background: linear-gradient(180deg, #373d4c 0%, #242732 100%);
+        }
+
+        .bell-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #0a0b0d;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="tower-housing">
+        
+        <!-- 1. BAGIAN ATAS: DOWN LINE (REPEATER DARI PPKA 1) -->
+        <div class="top-enamel-section">
+            <div class="metal-tag metal-tag-light">DOWN LINE</div>
+            <div class="dial-window">
+                <svg class="svg-dial" viewBox="0 0 300 150">
+                    <path d="M 35 125 A 115 115 0 0 1 115 30 L 125 65 A 80 80 0 0 0 68 125 Z" fill="#15803d" />
+                    <text x="75" y="75" fill="#fff" font-family="'Inter', sans-serif" font-size="9" font-weight="800" text-anchor="middle">
+                        <tspan x="75" dy="0">LINE</tspan>
+                        <tspan x="75" dy="11">CLEAR</tspan>
+                    </text>
+
+                    <path d="M 118 28 L 182 28 L 172 63 L 128 63 Z" fill="#e5e7eb" />
+                    <text x="150" y="50" fill="#111" font-family="'Inter', sans-serif" font-size="9" font-weight="800" text-anchor="middle">NORMAL</text>
+
+                    <path d="M 185 30 A 115 115 0 0 1 265 125 L 232 125 A 80 80 0 0 0 175 65 Z" fill="#b91c1c" />
+                    <text x="225" y="70" fill="#fff" font-family="'Inter', sans-serif" font-size="8.5" font-weight="800" text-anchor="middle">
+                        <tspan x="225" dy="0">TRAIN</tspan>
+                        <tspan x="225" dy="10">ON LINE</tspan>
+                    </text>
+
+                    <rect x="125" y="18" width="50" height="7" fill="#333" rx="2"/>
+                    <circle cx="150" cy="21.5" r="2" fill="#111"/>
+                    
+                    <g id="needle-top" transform="rotate(0 150 125)">
+                        <line x1="150" y1="125" x2="150" y2="22" stroke="#111" stroke-width="3.5" stroke-linecap="round"/>
+                        <polygon points="150,14 144,26 156,26" fill="#111"/>
+                        <circle cx="150" cy="125" r="5.5" fill="#111"/>
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+        <!-- 2. BAGIAN TENGAH: UP LINE & KOMUTATOR PJL 1 -->
+        <div class="body-metal-section">
+            
+            <div class="metal-tag">UP LINE</div>
+            <div class="dial-window">
+                <svg class="svg-dial" viewBox="0 0 300 150">
+                    <path d="M 35 125 A 115 115 0 0 1 115 30 L 125 65 A 80 80 0 0 0 68 125 Z" fill="#15803d" />
+                    <text x="75" y="75" fill="#fff" font-family="'Inter', sans-serif" font-size="9" font-weight="800" text-anchor="middle">
+                        <tspan x="75" dy="0">LINE</tspan>
+                        <tspan x="75" dy="11">CLEAR</tspan>
+                    </text>
+
+                    <path d="M 118 28 L 182 28 L 172 63 L 128 63 Z" fill="#e5e7eb" />
+                    <text x="150" y="50" fill="#111" font-family="'Inter', sans-serif" font-size="9" font-weight="800" text-anchor="middle">NORMAL</text>
+
+                    <path d="M 185 30 A 115 115 0 0 1 265 125 L 232 125 A 80 80 0 0 0 175 65 Z" fill="#b91c1c" />
+                    <text x="225" y="70" fill="#fff" font-family="'Inter', sans-serif" font-size="8.5" font-weight="800" text-anchor="middle">
+                        <tspan x="225" dy="0">TRAIN</tspan>
+                        <tspan x="225" dy="10">ON LINE</tspan>
+                    </text>
+
+                    <rect x="125" y="18" width="50" height="7" fill="#333" rx="2"/>
+                    <circle cx="150" cy="21.5" r="2" fill="#111"/>
+
+                    <g id="needle-mid" transform="rotate(0 150 125)">
+                        <line x1="150" y1="125" x2="150" y2="22" stroke="#111" stroke-width="3.5" stroke-linecap="round"/>
+                        <polygon points="150,14 144,26 156,26" fill="#111"/>
+                        <circle cx="150" cy="125" r="5.5" fill="#111"/>
+                    </g>
+                </svg>
+            </div>
+
+            <!-- KOMUTATOR LINGKARAN PJL 1 -->
+            <div class="commutator-panel">
+                <svg class="svg-dial" viewBox="0 0 300 160">
+                    <g class="click-sector" onclick="setCommutator('LINE_CLEAR')">
+                        <path d="M 25 135 A 125 125 0 0 1 115 35 L 125 72 A 85 85 0 0 0 60 135 Z" fill="#15803d" />
+                        <text x="70" y="82" fill="#fff" font-family="'Inter', sans-serif" font-size="9" font-weight="800" text-anchor="middle">
+                            <tspan x="70" dy="0">LINE</tspan>
+                            <tspan x="70" dy="11">CLEAR</tspan>
+                        </text>
+                    </g>
+
+                    <g class="click-sector" onclick="setCommutator('NORMAL')">
+                        <path d="M 118 33 L 182 33 L 172 70 L 128 70 Z" fill="#e5e7eb" />
+                        <text x="150" y="55" fill="#111" font-family="'Inter', sans-serif" font-size="9" font-weight="800" text-anchor="middle">NORMAL</text>
+                    </g>
+
+                    <g class="click-sector" onclick="setCommutator('TRAIN_ON_LINE')">
+                        <path d="M 185 35 A 125 125 0 0 1 275 135 L 240 135 A 85 85 0 0 0 175 72 Z" fill="#b91c1c" />
+                        <text x="230" y="78" fill="#fff" font-family="'Inter', sans-serif" font-size="8.5" font-weight="800" text-anchor="middle">
+                            <tspan x="230" dy="0">TRAIN</tspan>
+                            <tspan x="230" dy="10">ON LINE</tspan>
+                        </text>
+                    </g>
+
+                    <g id="needle-comm" style="pointer-events:none;" transform="rotate(0 150 95)">
+                        <path d="M 150 10 C 163 10, 166 80, 161 105 C 157 116, 143 116, 139 105 C 134 80, 137 10, 150 10 Z" fill="#f4efe6" stroke="#222" stroke-width="2"/>
+                        <polygon points="150,110 145,95 155,95" fill="#222"/>
+                        <circle cx="150" cy="35" r="7" fill="#222"/>
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+        <!-- 3. BAGIAN BAWAH: STASIUN 1 & BELL TAPPER -->
+        <div class="bell-section">
+            <div class="metal-tag">STASIUN 1</div>
+            <button class="bell-btn" onclick="sendBell()">
+                <span>🔔</span>
+                <span>BELL TAPPER</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const currentRole = 'PJL1';
+        const targetRole = 'PPKA1';
+
+        const firebaseConfig = {
+            databaseURL: "https://ppka1-a2789-default-rtdb.asia-southeast1.firebasedatabase.app"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let myStatus = 'NORMAL';
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function ringBell() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(350, audioCtx.currentTime + 0.6);
+            gain.gain.setValueAtTime(0.8, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.7);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.7);
+        }
+
+        const needles = {
+            top: { currentAngle: 0, targetAngle: 0, velocity: 0, elementId: 'needle-top', pivotY: 125 },
+            mid: { currentAngle: 0, targetAngle: 0, velocity: 0, elementId: 'needle-mid', pivotY: 125 },
+            comm: { currentAngle: 0, targetAngle: 0, velocity: 0, elementId: 'needle-comm', pivotY: 95 }
+        };
+
+        function animateNeedles() {
+            const stiffness = 0.08;
+            const damping = 0.72;
+
+            Object.keys(needles).forEach(key => {
+                const n = needles[key];
+                const force = (n.targetAngle - n.currentAngle) * stiffness;
+                n.velocity = (n.velocity + force) * damping;
+                n.currentAngle += n.velocity;
+
+                const el = document.getElementById(n.elementId);
+                if (el) {
+                    el.setAttribute('transform', `rotate(${n.currentAngle.toFixed(2)} 150 ${n.pivotY})`);
+                }
+            });
+
+            requestAnimationFrame(animateNeedles);
+        }
+        requestAnimationFrame(animateNeedles);
+
+        function setCommutator(status) {
+            myStatus = status;
+            db.ref('railway_block/section_pjl1_ppka1').set(myStatus);
+        }
+
+        function updateDisplays() {
+            let target = 0;
+            if (myStatus === 'LINE_CLEAR') target = -38;
+            else if (myStatus === 'TRAIN_ON_LINE') target = 38;
+            needles.mid.targetAngle = target;
+            needles.comm.targetAngle = target;
+        }
+
+        function sendBell() {
+            ringBell();
+            db.ref('railway_block/bell_event').set({
+                sender: currentRole,
+                target: targetRole,
+                timestamp: Date.now()
+            });
+        }
+
+        // Listeners ke jalur PPKA 1 - PJL 1
+        db.ref('railway_block/section_pjl1_ppka1').on('value', (snap) => {
+            if (snap.val()) {
+                myStatus = snap.val();
+                updateDisplays();
+            }
+        });
+
+        db.ref('railway_block/section_ppka1_pjl1').on('value', (snap) => {
+            const val = snap.val();
+            let target = 0;
+            if (val === 'LINE_CLEAR') target = -38;
+            else if (val === 'TRAIN_ON_LINE') target = 38;
+            needles.top.targetAngle = target;
+        });
+
+        db.ref('railway_block/bell_event').on('value', (snap) => {
+            const data = snap.val();
+            if (data && data.target === currentRole) {
+                ringBell();
+            }
+        });
+    </script>
+</body>
+</html>
